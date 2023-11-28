@@ -13,10 +13,11 @@ public class SudokuBoard implements ActionListener {
     JPanel[] boxPanels = new JPanel[9];
     JPanel bigPanel;
     JLabel label1;
-    JButton[][] boxes;
+    SudokuButton box;
+    JButton[][] boxList = new JButton[9][9];
     JButton solveButton;
     Font comfortaa = Font.createFont(Font.TRUETYPE_FONT,
-            new File("C:\\Users\\Dorno\\Desktop\\Coding projects\\Java\\SudokuMaster\\src\\resources\\Comfortaa-VariableFont_wght.ttf"));
+            new File("C:\\Users\\Dorno\\Desktop\\Coding projects\\Java\\MyFirstProject\\src\\resources\\Comfortaa-VariableFont_wght.ttf"));
 
     public SudokuBoard() throws IOException, FontFormatException {
         // Setting up the frame
@@ -53,16 +54,16 @@ public class SudokuBoard implements ActionListener {
         }
 
         // Setting up boxes
-        boxes = new JButton[9][9];
         for(int y = 0; y < 9; y++) {
             for(int x = 0; x < 9; x++) {
-                boxes[x][y] = new JButton();
-                boxes[x][y].setBackground(new Color(200, 200, 200));
-                boxes[x][y].addActionListener(this);
-                boxes[x][y].setFocusable(false);
-                boxes[x][y].setBorder(null);
-                boxes[x][y].setText(x + ", " + y);
-                boxPanels[y].add(boxes[x][y]);
+                box = new SudokuButton(x, y,  -1);
+                box.button.setBackground(new Color(200, 200, 200));
+                box.button.addActionListener(this);
+                box.button.setFocusable(false);
+                box.button.setBorder(null);
+                box.button.setText(x + ", " + y);
+                boxList[x][y] = box.button;
+                boxPanels[y].add(box.button);
             }
             bigPanel.add(boxPanels[y]);
         }
@@ -70,6 +71,14 @@ public class SudokuBoard implements ActionListener {
         frame.add(panel1, BorderLayout.NORTH);
         frame.add(bigPanel, BorderLayout.CENTER);
         frame.setVisible(true);
+    }
+
+    public void checkRow() {
+
+    }
+
+    public void checkColumn() {
+
     }
 
     // Setting up button action
