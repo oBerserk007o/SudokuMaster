@@ -6,7 +6,7 @@ public class SudokuButton {
     int x;
     int y;
     JButton button;
-    Boolean[] possibleNumbers;
+    int[] possibleNumbers;
     int currentNumber;
 
     public SudokuButton(int x, int y, int currentNumber) {
@@ -16,11 +16,11 @@ public class SudokuButton {
         this.currentNumber = currentNumber;
     }
 
-    public void setPossibleNumbers(Boolean[] possibleNumbers) {
+    public void setPossibleNumbers(int[] possibleNumbers) {
         this.possibleNumbers = possibleNumbers;
     }
 
-    public Boolean[] getPossibleNumbers() {
+    public int[] getPossibleNumbers() {
         return possibleNumbers;
     }
 }
