@@ -16,11 +16,19 @@ public class SudokuButton {
         this.currentNumber = currentNumber;
     }
 
+    public void setCurrentNumber(int currentNumber) {
+        this.currentNumber = currentNumber;
+    }
+
     public void setPossibleNumbers(int[] possibleNumbers) {
         this.possibleNumbers = possibleNumbers;
     }
 
     public int[] getPossibleNumbers() {
         return possibleNumbers;
+    }
+
+    public void updateText() {
+        this.button.setText(String.valueOf(currentNumber));
     }
 }
