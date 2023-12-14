@@ -10,6 +10,7 @@ public class Main {
     public static void main(String[] args) throws
             IOException, FontFormatException, URISyntaxException, InterruptedException, ParseException {
         SudokuBoard board = new SudokuBoard();
+        NumberPad numberPad = new NumberPad(board);
         board.setupBoard();
     }
 }

@@ -27,15 +27,15 @@ public class SudokuBoard implements ActionListener {
     JLabel label1;
     SudokuButton box;
     SudokuButton[][] boxList = new SudokuButton[9][9];
-    Integer[] boardRowValues = new Integer[9];
     JButton solveButton;
+    SudokuButton selectedButton;
     Font comfortaa = Font.createFont(Font.TRUETYPE_FONT,
             new File("C:\\Users\\Dorno\\Desktop\\Coding projects\\Java\\MyFirstProject\\src\\resources\\Comfortaa-VariableFont_wght.ttf"));
 
     // Colours
     final Color BLACK = new Color(0, 0, 0);
     final Color LIGHT_GREY = new Color(200, 200, 200);
-    final Color GREEN = new Color(77, 163, 87);
+    final Color LIGHT_BLUE = new Color(147, 160, 199);
 
     public SudokuBoard() throws IOException, FontFormatException {
         // Setting up the frame
@@ -80,9 +80,8 @@ public class SudokuBoard implements ActionListener {
                 box.button.addActionListener(this);
                 box.button.setFocusPainted(false);
                 box.button.setBorder(null);
-                box.button.setText(x + "," + y);
                 box.button.setSize(75, 75);
-                box.button.setFont(comfortaa.deriveFont(Font.BOLD, 20f));
+                box.button.setFont(comfortaa.deriveFont(Font.BOLD, 25f));
                 boxList[x][y] = box;
                 boxPanels[y].add(box.button);
             }
@@ -96,13 +95,17 @@ public class SudokuBoard implements ActionListener {
 
     // Function to write numbers to a row
     public void writeToRow(int row, SudokuButton[][] boxList, int[] numberArray) {
-        System.out.println(Arrays.toString(numberArray));
         int i = 0;
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
+                statement:
                 if ((x / 3) == (row % 3) && (y / 3) == (row / 3)) {
+                    if (numberArray[i] == 0) {
+                        boxList[x][y].button.setText("");
+                        i++;
+                        break statement;
+                    }
                     boxList[x][y].setCurrentNumber(numberArray[i]);
-                    boxList[x][y].updateText();
                     i++;
                 }
             }
@@ -110,32 +113,43 @@ public class SudokuBoard implements ActionListener {
     }
 
     // Function to check row for a certain number
-    public void checkRow(int xPos, int yPos, SudokuButton[][] boxList, int num) {
+    public boolean checkRow(int xPos, int yPos, SudokuButton[][] boxList, int num) {
+        boolean bool = false;
+        loop:
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
                 if (x % 3 == (xPos % 3) && y % 3 == (yPos % 3)) {
-                    boxList[x][y].button.setBackground(GREEN);
+                    bool = boxList[x][y].currentNumber == num;
+                    if (bool) break loop;
                 }
             }
         }
+        return bool;
     }
 
     // Function to check column for a certain number
-    public void checkColumn(int xPos, int yPos, SudokuButton[][] boxList, int num) {
+    public boolean checkColumn(int xPos, int yPos, SudokuButton[][] boxList, int num) {
+        boolean bool = false;
+        loop:
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
                 if ((x / 3) == (xPos / 3) && (y / 3) == (yPos / 3)) {
-                    boxList[x][y].button.setBackground(GREEN);
+                    bool = boxList[x][y].currentNumber == num;
+                    if (bool) break loop;
                 }
             }
         }
+        return bool;
     }
 
     // Function to check square for a certain number
-    public void checkSquare(int yPos, SudokuButton[][] boxList, int num) {
+    public boolean checkSquare(int yPos, SudokuButton[][] boxList, int num) {
+        boolean bool = false;
         for (int x = 0; x < 9; x++) {
-            boxList[x][yPos].button.setBackground(GREEN);
+            bool = boxList[x][yPos].currentNumber == num;
+            if (bool) break;
         }
+        return bool;
     }
 
     // Function to colour row
@@ -183,22 +197,23 @@ public class SudokuBoard implements ActionListener {
         for (int x = 0; x < 9; x++) {
             for (int y = 0; y < 9; y++) {
                 if (boxList[x][y].button == button) {
+                    selectedButton = boxList[x][y];
                     newX = x;
                     newY = y;
                     break;
                 }
             }
         }
-        colourRow(newX, newY, boxList, GREEN);
-        colourColumn(newX, newY, boxList, GREEN);
-        colourSquare(newY, boxList, GREEN);
+        colourRow(newX, newY, boxList, LIGHT_BLUE);
+        colourColumn(newX, newY, boxList, LIGHT_BLUE);
+        colourSquare(newY, boxList, LIGHT_BLUE);
+        boxList[newX][newY].button.setBackground(new Color(105, 128, 199));
         oldX = newX;
         oldY = newY;
     }
 
     // Filling the board with a solvable set of numbers
     public void setupBoard() throws URISyntaxException, IOException, InterruptedException, ParseException {
-        /*
         // Sending GET request to Dosuku API to get a new random board arrangement (thank you to them)
         HttpRequest getRequest = HttpRequest.newBuilder()
                 .uri(new URI("https://sudoku-api.vercel.app/api/dosuku"))
@@ -214,16 +229,8 @@ public class SudokuBoard implements ActionListener {
         getResponseJSON.write(getResponse.body());
         getResponseJSON.close();
 
-         */
-        // Setting up board values and board solution
-        JSONParser jsonParser = new JSONParser();
-        FileReader reader =
-                new FileReader("C:\\Users\\Dorno\\Desktop\\Coding projects\\Java\\SudokuMaster\\src\\main\\resources\\get_response.json");
-
-        JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
-        JSONObject newBoard = (JSONObject) jsonObject.get("newboard");
-        JSONArray grids = (JSONArray) newBoard.get("grids");
-        JSONObject grids_value = (JSONObject) grids.get(0);
+        // Setting up board values and board solution (an absolute mess (and probably as fast as a lethargic turtle))
+        JSONObject grids_value = getJsonObject();
         JSONArray value = (JSONArray) grids_value.get("value");
         Object[] boardValuesJSONArray = value.toArray();
         String[] boardValuesArray = Arrays.toString(boardValuesJSONArray)
@@ -232,15 +239,36 @@ public class SudokuBoard implements ActionListener {
                 .replace(" ", "")
                 .split(",");
         int[][] boardValues = new int[9][9];
+
         JSONArray solution = (JSONArray) grids_value.get("solution");
         Object[] boardSolutionJSONArray = solution.toArray();
+        String[] boardSolutionArray = Arrays.toString(boardSolutionJSONArray)
+                .replace("[", "")
+                .replace("]", "")
+                .replace(" ", "")
+                .split(",");
+        int[][] boardSolution = new int[9][9];
+
         int k = 0;
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 boardValues[i][j] = Integer.parseInt(boardValuesArray[k]);
+                boardSolution[i][j] = Integer.parseInt(boardSolutionArray[k]);
                 k++;
             }
             writeToRow(i, boxList, boardValues[i]);
         }
+    }
+
+    private static JSONObject getJsonObject() throws IOException, ParseException {
+        JSONParser jsonParser = new JSONParser();
+        FileReader reader =
+                new FileReader("C:\\Users\\Dorno\\Desktop\\Coding projects\\Java\\SudokuMaster\\src\\main\\resources\\get_response.json");
+
+        JSONObject jsonObject = (JSONObject) jsonParser.parse(reader);
+        JSONObject newBoard = (JSONObject) jsonObject.get("newboard");
+        JSONArray grids = (JSONArray) newBoard.get("grids");
+        JSONObject grids_value = (JSONObject) grids.get(0);
+        return grids_value;
     }
 }

@@ -18,6 +18,7 @@ public class SudokuButton {
 
     public void setCurrentNumber(int currentNumber) {
         this.currentNumber = currentNumber;
+        updateText();
     }
 
     public void setPossibleNumbers(int[] possibleNumbers) {
